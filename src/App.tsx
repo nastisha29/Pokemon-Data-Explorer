@@ -1,9 +1,13 @@
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
+import PokemonList from "./pages/PokemonList";
 
 function App() {
   return (
     <div>
-      <h1>Pokemon Data Explorer</h1>
+      <Routes>
+        <Route path="/" element={<PokemonList />} />
+      </Routes>
     </div>
   );
 }
