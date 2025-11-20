@@ -115,6 +115,7 @@ const PokemonList = () => {
           typeFilter={typeFilter}
           onSearchChange={handleSearchChange}
           onTypeFilterChange={handleTypeFilterChange}
+          onClearFilters={handleClearFilters}
         />
 
         {isLoading ? (
