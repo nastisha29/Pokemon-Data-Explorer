@@ -6,6 +6,7 @@ interface FilterPanelProps {
   typeFilter: string;
   onSearchChange: (value: string) => void;
   onTypeFilterChange: (value: string) => void;
+  onClearFilters: () => void;
 }
 
 const FilterPanel = ({
@@ -13,6 +14,7 @@ const FilterPanel = ({
   typeFilter,
   onSearchChange,
   onTypeFilterChange,
+  onClearFilters,
 }: FilterPanelProps) => {
   const { data: types, isLoading } = usePokemonTypes();
   const [searchInput, setSearchInput] = useState(searchValue);
@@ -82,9 +84,7 @@ const FilterPanel = ({
         <button
           className="btn btn-ghost btn-sm self-end hover:bg-red-50 hover:text-red-600 disabled:opacity-0 disabled:cursor-default transition-opacity"
           onClick={() => {
-            setSearchInput("");
-            onSearchChange("");
-            onTypeFilterChange("");
+            onClearFilters();
           }}
           disabled={!searchValue && !typeFilter}
         >
