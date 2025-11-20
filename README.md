@@ -1,73 +1,115 @@
-# React + TypeScript + Vite
+# Pokemon Data Explorer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, interactive web application for exploring Pokemon data using the PokeAPI. Browse through Pokemon, filter by type, search by name, and view detailed information about each Pokemon.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Pokemon List View**: Browse paginated Pokemon data with sprites and type information.
 
-## React Compiler
+- **Search Functionality**: Search Pokemon by name with real-time filtering.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Type Filtering**: Filter Pokemon by their elemental types.
 
-## Expanding the ESLint configuration
+- **Detailed View**: Click on any Pokemon to see detailed information.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **React 19.2.0** - UI framework
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **TypeScript** - Type safety
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- **React Router v7** - Client-side routing
+
+- **TanStack Query (React Query)** - Data fetching and caching
+
+- **TanStack Table** - Table management
+
+- **Tailwind CSS** - Styling
+
+- **DaisyUI** - UI component library
+
+- **Vite** - Build tool and dev server
+
+## Prerequisites
+
+- Node.js (v16 or higher recommended)
+
+- npm or yarn package manager
+
+## Setup Instructions
+
+1.  **Clone the repository**
+
+```bash
+
+git clone https://github.com/nastisha29/Pokemon-Data-Explorer.git
+
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2.  **Install dependencies**
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+npm install
+
 ```
+
+3.  **Start the development server**
+
+```bash
+
+npm run dev
+
+```
+
+4.  **Open the application**
+
+- The app will be available at `http://localhost:5173` (or another port if 5173 is taken)
+
+- The dev server will automatically open your browser
+
+## API Usage
+
+This application uses the [PokeAPI](https://pokeapi.co/) - a free, open RESTful API for Pokemon data.
+
+### Endpoints Used:
+
+- `GET /pokemon` - List Pokemon with pagination
+
+- `GET /pokemon/{id}` - Get Pokemon details by ID
+
+- `GET /pokemon/{name}` - Get Pokemon details by name
+
+- `GET /type` - List all Pokemon types
+
+- `GET /type/{name}` - Get Pokemon by type
+
+## Assumptions Made
+
+1.  **API Availability**: The PokeAPI service is assumed to be available and stable. No offline fallback is implemented.
+
+2.  **Data Volume**: The application loads up to 10,000 Pokemon names for search functionality, assuming this is within acceptable memory limits for modern browsers.
+
+3.  **Pagination**: Default page size is 20 Pokemon per page. This provides a good balance between data loading and user experience.
+
+4.  **Image Availability**: Pokemon sprites and official artwork are assumed to be available from the API. Fallback to front_default sprite if official artwork is missing.
+
+5.  **Search Behavior**:
+
+- Search is case-insensitive and matches partial names
+
+- Search results are limited to 100 matches for performance
+
+- Both search and type filters can be active simultaneously
+
+6.  **Caching Strategy**:
+
+- Pokemon data is cached for 1 hour (staleTime)
+
+- Pokemon list data is cached for 7 days
+
+- All Pokemon names are cached for 30 days
+
+## License
+
+This project was created as part of a technical assessment for an interview. Pokemon and Pokemon character names are trademarks of Nintendo.
