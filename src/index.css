@@ -1,2 +1,18 @@
 @import "tailwindcss";
 @import "daisyui/daisyui.css";
+
+html,
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: linear-gradient(to bottom right, #eff6ff, #faf5ff, #fdf2f8);
+  background-attachment: fixed;
+}
+
+#root {
+  min-height: 100vh;
+}

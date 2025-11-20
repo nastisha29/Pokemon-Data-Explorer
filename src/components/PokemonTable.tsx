@@ -1,13 +1,13 @@
 import {
   useReactTable,
   getCoreRowModel,
-  getFilteredRowModel,
   flexRender,
   createColumnHelper,
-  type FilterFn,
 } from "@tanstack/react-table";
 import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 import type { PokemonTableData } from "../types/pokemon";
+import { getTypeColor, getTypeTextColor } from "../utils/pokemonColors";
 
 const columnHelper = createColumnHelper<PokemonTableData>();
 
@@ -18,27 +18,6 @@ interface PokemonTableProps {
   onPageChange: (page: number) => void;
 }
 
-const typeColors: Record<string, string> = {
-  normal: "#A8A878",
-  fire: "#F08030",
-  water: "#6890F0",
-  electric: "#F8D030",
-  grass: "#78C850",
-  ice: "#98D8D8",
-  fighting: "#C03028",
-  poison: "#A040A0",
-  ground: "#E0C068",
-  flying: "#A890F0",
-  psychic: "#F85888",
-  bug: "#A8B820",
-  rock: "#B8A038",
-  ghost: "#705898",
-  dragon: "#7038F8",
-  dark: "#705848",
-  steel: "#B8B8D0",
-  fairy: "#EE99AC",
-};
-
 const PokemonTable = ({
   data,
   currentPage,
@@ -47,92 +26,82 @@ const PokemonTable = ({
 }: PokemonTableProps) => {
   const navigate = useNavigate();
 
-  const globalFilterFn: FilterFn<PokemonTableData> = (
-    row,
-    _columnId,
-    filterValue
-  ) => {
-    const searchValue = filterValue.toLowerCase();
-    return row.original.name.toLowerCase().includes(searchValue);
-  };
-
-  const columns = [
-    columnHelper.accessor("id", {
-      header: () => <div className="text-center">ID</div>,
-      cell: (info) => (
-        <div className="text-center">
-          <span className="font-bold text-sm">
-            {String(info.getValue()).padStart(3, "0")}
-          </span>
-        </div>
-      ),
-      meta: {
-        className: "text-center",
-      },
-    }),
-    columnHelper.accessor("sprite", {
-      header: () => <div className="text-center">Image</div>,
-      cell: (info) => (
-        <div className="flex justify-center">
-          <div className="avatar">
-            <div className="w-24 h-24 rounded flex items-center justify-center">
-              <img
-                src={info.getValue()}
-                alt={info.row.original.name}
-                className="pixelated w-full h-full object-contain"
-                style={{ imageRendering: "pixelated" }}
-              />
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("id", {
+        header: () => <div className="text-center">ID</div>,
+        cell: (info) => (
+          <div className="text-center">
+            <span className="font-bold text-sm">{String(info.getValue())}</span>
+          </div>
+        ),
+        meta: {
+          className: "text-center",
+        },
+      }),
+      columnHelper.accessor("sprite", {
+        header: () => <div className="text-center">Image</div>,
+        cell: (info) => (
+          <div className="flex justify-center">
+            <div className="avatar">
+              <div className="w-24 h-24 rounded flex items-center justify-center">
+                <img
+                  src={info.getValue()}
+                  alt={info.row.original.name}
+                  className="pixelated w-full h-full object-contain"
+                  style={{ imageRendering: "pixelated" }}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      ),
-      enableColumnFilter: false,
-      meta: {
-        className: "text-center",
-      },
-    }),
-    columnHelper.accessor("name", {
-      header: "Name",
-      cell: (info) => (
-        <span className="font-semibold capitalize text-base">
-          {info.getValue()}
-        </span>
-      ),
-      meta: {
-        className: "text-left",
-      },
-    }),
-    columnHelper.accessor("types", {
-      header: "Type(s)",
-      cell: (info) => (
-        <div className="flex gap-2">
-          {info.getValue().map((type) => (
-            <span
-              key={type}
-              className="badge badge-sm font-semibold uppercase"
-              style={{
-                backgroundColor: typeColors[type] || "#888",
-                color: type === "electric" ? "#333" : "#fff",
-                borderColor: typeColors[type] || "#888",
-              }}
-            >
-              {type}
-            </span>
-          ))}
-        </div>
-      ),
-      meta: {
-        className: "text-left",
-      },
-    }),
-  ];
+        ),
+        enableColumnFilter: false,
+        meta: {
+          className: "text-center",
+        },
+      }),
+      columnHelper.accessor("name", {
+        header: "Name",
+        cell: (info) => (
+          <span className="font-semibold capitalize text-base">
+            {info.getValue()}
+          </span>
+        ),
+        meta: {
+          className: "text-left",
+        },
+      }),
+      columnHelper.accessor("types", {
+        header: "Type(s)",
+        cell: (info) => (
+          <div className="flex gap-2">
+            {info.getValue().map((type) => (
+              <span
+                key={type}
+                className="badge badge-sm font-semibold uppercase"
+                style={{
+                  backgroundColor: getTypeColor(type),
+                  color: getTypeTextColor(type),
+                  borderColor: getTypeColor(type),
+                }}
+              >
+                {type}
+              </span>
+            ))}
+          </div>
+        ),
+        meta: {
+          className: "text-left",
+        },
+      }),
+    ],
+    []
+  );
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    globalFilterFn,
   });
 
   const handleRowClick = (pokemonId: number) => {
@@ -141,15 +110,15 @@ const PokemonTable = ({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-x-auto rounded-lg shadow-lg">
-        <table className="table table-zebra w-full">
-          <thead className="bg-primary text-primary-content">
+      <div className="overflow-x-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-purple-100">
+        <table className="table w-full">
+          <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
+              <tr key={headerGroup.id} className="border-b-2 border-purple-200">
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
-                    className={`font-bold text-sm uppercase tracking-wide ${
+                    className={`font-bold text-xs uppercase tracking-wide text-purple-700 bg-gradient-to-r from-purple-50 to-pink-50 ${
                       (header.column.columnDef.meta as { className?: string })
                         ?.className || ""
                     }`}
@@ -164,11 +133,13 @@ const PokemonTable = ({
             ))}
           </thead>
           <tbody>
-            {table.getRowModel().rows.map((row) => (
+            {table.getRowModel().rows.map((row, index) => (
               <tr
                 key={row.id}
                 onClick={() => handleRowClick(row.original.id)}
-                className="hover:bg-base-200 cursor-pointer transition-colors"
+                className={`border-b border-purple-100 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 cursor-pointer transition-all duration-200 hover:shadow-md ${
+                  index % 2 === 0 ? "bg-white" : "bg-purple-50/30"
+                }`}
               >
                 {row.getVisibleCells().map((cell) => (
                   <td
@@ -187,49 +158,49 @@ const PokemonTable = ({
         </table>
       </div>
 
-      <div className="flex justify-center items-center gap-8 py-6">
+      <div className="flex justify-center items-center gap-4 py-6">
         <button
-          className="w-8 h-8 flex items-center justify-center rounded hover:bg-base-200 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg disabled:hover:bg-white"
           onClick={() => onPageChange(1)}
           disabled={currentPage === 1}
           aria-label="First page"
         >
-          <span className="text-base-content/60">«</span>
+          <span className="font-bold">«</span>
         </button>
         <button
-          className="w-8 h-8 flex items-center justify-center rounded hover:bg-base-200 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg disabled:hover:bg-white"
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           aria-label="Previous page"
         >
-          <span className="text-base-content/60">‹</span>
+          <span className="font-bold">‹</span>
         </button>
 
-        <div className="flex items-baseline gap-1 min-w-[80px] justify-center">
-          <span className="text-lg font-medium tabular-nums">
-            {currentPage}
-          </span>
-          <span className="text-base-content/30 text-sm">/</span>
-          <span className="text-sm text-base-content/50 tabular-nums">
-            {totalPages}
-          </span>
+        <div className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-lg">
+          <div className="flex items-center gap-2">
+            <span className="text-white font-bold tabular-nums text-lg">
+              {currentPage}
+            </span>
+            <span className="text-white/70">/</span>
+            <span className="text-white/90 tabular-nums">{totalPages}</span>
+          </div>
         </div>
 
         <button
-          className="w-8 h-8 flex items-center justify-center rounded hover:bg-base-200 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg disabled:hover:bg-white"
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           aria-label="Next page"
         >
-          <span className="text-base-content/60">›</span>
+          <span className="font-bold">›</span>
         </button>
         <button
-          className="w-8 h-8 flex items-center justify-center rounded hover:bg-base-200 disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-purple-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg disabled:hover:bg-white"
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage === totalPages}
           aria-label="Last page"
         >
-          <span className="text-base-content/60">»</span>
+          <span className="font-bold">»</span>
         </button>
       </div>
     </div>

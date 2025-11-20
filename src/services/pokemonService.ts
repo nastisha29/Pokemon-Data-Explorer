@@ -1,5 +1,9 @@
 import { apiInstance } from "../utils/api";
-import type { Pokemon, PokemonListResponse } from "../types/pokemon";
+import type {
+  Pokemon,
+  PokemonListResponse,
+  PokemonTypeResponse,
+} from "../types/pokemon";
 
 const API_URL = "https://pokeapi.co/api/v2";
 
@@ -40,5 +44,20 @@ export const pokemonService = {
             data.results.map((t: { name: string }) => t.name)
           ) as Promise<string[]>;
       }),
+
+    getByName: (typeName: string) =>
+      apiInstance
+        .get(`${API_URL}/type/${typeName.toLowerCase()}`)
+        .then(async (res) => {
+          if (!res.ok) throw new Error("Failed to fetch type");
+          const data: PokemonTypeResponse = await res.json();
+          return {
+            name: data.name,
+            pokemon: data.pokemon.map((p) => ({
+              name: p.pokemon.name,
+              url: p.pokemon.url,
+            })),
+          };
+        }),
   },
 };

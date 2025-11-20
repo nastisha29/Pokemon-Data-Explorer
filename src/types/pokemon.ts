@@ -60,3 +60,13 @@ export interface PokemonTableData {
   types: string[];
   sprite: string;
 }
+
+export interface PokemonTypeResponse {
+  name: string;
+  pokemon: {
+    pokemon: {
+      name: string;
+      url: string;
+    };
+  }[];
+}
