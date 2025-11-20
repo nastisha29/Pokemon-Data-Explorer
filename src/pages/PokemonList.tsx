@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { usePokemonTableData } from "../hooks/usePokemonTableData";
 import { usePokemonByTypeData } from "../hooks/usePokemonTypes";
 import { useSearchPokemon } from "../hooks/usePokemonSearch";
@@ -12,15 +13,25 @@ import PageHeader from "../components/PageHeader";
 const ITEMS_PER_PAGE = 20;
 
 const PokemonList = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchFilter, setSearchFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentPage = parseInt(searchParams.get("page") || "1");
+  const searchFilter = searchParams.get("search") || "";
+  const typeFilter = searchParams.get("type") || "";
 
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   const defaultData = usePokemonTableData(offset, ITEMS_PER_PAGE);
-  const typeData = usePokemonByTypeData(typeFilter, currentPage, ITEMS_PER_PAGE);
-  const searchData = useSearchPokemon(searchFilter, currentPage, ITEMS_PER_PAGE);
+  const typeData = usePokemonByTypeData(
+    typeFilter,
+    currentPage,
+    ITEMS_PER_PAGE
+  );
+  const searchData = useSearchPokemon(
+    searchFilter,
+    currentPage,
+    ITEMS_PER_PAGE
+  );
 
   const activeData = useMemo(() => {
     if (searchFilter && !typeFilter) return searchData;
@@ -36,7 +47,6 @@ const PokemonList = () => {
   const data = useMemo(() => {
     if (!activeData.data) return [];
 
-    // If both search and type filter are active, filter the type results by name
     if (searchFilter && typeFilter) {
       return activeData.data.filter((pokemon) =>
         pokemon.name.toLowerCase().includes(searchFilter.toLowerCase())
@@ -52,27 +62,41 @@ const PokemonList = () => {
   const error = defaultData.error;
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setSearchParams((params) => {
+      params.set("page", page.toString());
+      return params;
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSearchChange = (value: string) => {
-    setSearchFilter(value);
-    setCurrentPage(1);
+    setSearchParams((params) => {
+      if (value) {
+        params.set("search", value);
+      } else {
+        params.delete("search");
+      }
+      params.set("page", "1");
+      return params;
+    });
   };
 
   const handleTypeFilterChange = (value: string) => {
-    setTypeFilter(value);
-    setCurrentPage(1);
+    setSearchParams((params) => {
+      if (value) {
+        params.set("type", value);
+      } else {
+        params.delete("type");
+      }
+      params.set("page", "1");
+      return params;
+    });
   };
 
   const handleClearFilters = () => {
-    setSearchFilter("");
-    setTypeFilter("");
-    setCurrentPage(1);
+    setSearchParams({});
   };
 
-  // Only show full-page loading on initial load (no filters active)
   if (isLoading && !searchFilter && !typeFilter) {
     return <LoadingState fullPage />;
   }

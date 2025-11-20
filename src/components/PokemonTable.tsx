@@ -4,7 +4,7 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useMemo } from "react";
 import type { PokemonTableData } from "../types/pokemon";
 import { getTypeColor, getTypeTextColor } from "../utils/pokemonColors";
@@ -25,6 +25,7 @@ const PokemonTable = ({
   onPageChange,
 }: PokemonTableProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const columns = useMemo(
     () => [
@@ -105,7 +106,7 @@ const PokemonTable = ({
   });
 
   const handleRowClick = (pokemonId: number) => {
-    navigate(`/pokemon/${pokemonId}`);
+    navigate(`/pokemon/${pokemonId}?${searchParams.toString()}`);
   };
 
   return (
